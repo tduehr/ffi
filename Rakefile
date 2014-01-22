@@ -3,6 +3,7 @@ require 'rubygems/package_task'
 require 'rubygems/tasks'
 require 'rbconfig'
 require 'rake/clean'
+require 'require_relative'
 
 USE_RAKE_COMPILER = (RUBY_PLATFORM =~ /java/) ? false : true
 if USE_RAKE_COMPILER

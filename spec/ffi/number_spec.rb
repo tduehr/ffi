@@ -62,6 +62,11 @@ describe "Function with primitive integer arguments" do
       LibTest.ret_s8(i).should == i
     end
   end
+
+  it ":char call(:char (0xff))" do
+    LibTest.ret_s8(0xff).should == -1
+  end
+
   [ 0, 0x7f, 0x80, 0xff ].each do |i|
     it ":uchar call(:uchar (#{i}))" do
       LibTest.ret_u8(i).should == i
@@ -72,6 +77,11 @@ describe "Function with primitive integer arguments" do
       LibTest.ret_s16(i).should == i
     end
   end
+
+  it ":short call(:short (0xffff))" do
+    LibTest.ret_s16(0xffff).should == -1
+  end
+
   [ 0, 0x7fff, 0x8000, 0xffff ].each do |i|
     it ":ushort call(:ushort (#{i}))" do
       LibTest.ret_u16(i).should == i
@@ -82,6 +92,11 @@ describe "Function with primitive integer arguments" do
       LibTest.ret_s32(i).should == i
     end
   end
+
+  it ":int call(:int (#{0xffffffff}))" do
+    LibTest.ret_s32(0xffffffff).should == -1
+  end
+
   [ 0, 0x7fffffff, 0x80000000, 0xffffffff ].each do |i|
     it ":uint call(:uint (#{i}))" do
       LibTest.ret_u32(i).should == i
@@ -92,17 +107,27 @@ describe "Function with primitive integer arguments" do
       LibTest.ret_s64(i).should == i
     end
   end
+
+  it ":long_long call(:long_long (#{0xffffffffffffffff}))" do
+    LibTest.ret_s64(0xffffffffffffffff).should == -1
+  end
+
   [ 0, 0x7fffffffffffffff, 0x8000000000000000, 0xffffffffffffffff ].each do |i|
     it ":ulong_long call(:ulong_long (#{i}))" do
       LibTest.ret_u64(i).should == i
     end
   end
   if FFI::Platform::LONG_SIZE == 32
-    [ 0, 0x7fffffff, -0x80000000, -1 ].each do |i|
+    [ 0, 0x7fffffff, -0x80000000, -1, 0xffffffff ].each do |i|
       it ":long call(:long (#{i}))" do
         LibTest.ret_long(i).should == i
       end
     end
+
+    it ":long call(:long (#{0xffffffff}))" do
+      LibTest.ret_long(0xffffffff).should == -1
+    end
+
     [ 0, 0x7fffffff, 0x80000000, 0xffffffff ].each do |i|
       it ":ulong call(:ulong (#{i}))" do
         LibTest.ret_ulong(i).should == i
@@ -114,6 +139,11 @@ describe "Function with primitive integer arguments" do
         LibTest.ret_long(i).should == i
       end
     end
+
+    it ":long call(:long (#{0xffffffffffffffff}))" do
+      LibTest.ret_long(0xffffffffffffffff).should == -1
+    end
+
     [ 0, 0x7fffffffffffffff, 0x8000000000000000, 0xffffffffffffffff ].each do |i|
       it ":ulong call(:ulong (#{i}))" do
         LibTest.ret_ulong(i).should == i

@@ -126,14 +126,14 @@ rbffi_SetupCallParams(int argc, VALUE* argv, int paramCount, Type** paramTypes,
         switch (paramType->nativeType) {
 
             case NATIVE_INT8:
-                param->s8 = NUM2INT(argv[argidx]);
+                param->s8 = NUM2UINT(argv[argidx]);
                 ++argidx;
                 ADJ(param, INT8);
                 break;
 
 
             case NATIVE_INT16:
-                param->s16 = NUM2INT(argv[argidx]);
+                param->s16 = NUM2UINT(argv[argidx]);
                 ++argidx;
                 ADJ(param, INT16);
                 break;
@@ -142,10 +142,10 @@ rbffi_SetupCallParams(int argc, VALUE* argv, int paramCount, Type** paramTypes,
             case NATIVE_INT32:
                 if (unlikely(type == T_SYMBOL && enums != Qnil)) {
                     VALUE value = rb_funcall(enums, id_map_symbol, 1, argv[argidx]);
-                    param->s32 = NUM2INT(value);
+                    param->s32 = NUM2UINT(value);
 
                 } else {
-                    param->s32 = NUM2INT(argv[argidx]);
+                    param->s32 = NUM2UINT(argv[argidx]);
                 }
 
                 ++argidx;
@@ -184,7 +184,7 @@ rbffi_SetupCallParams(int argc, VALUE* argv, int paramCount, Type** paramTypes,
 
 
             case NATIVE_INT64:
-                param->i64 = NUM2LL(argv[argidx]);
+                param->i64 = NUM2ULL(argv[argidx]);
                 ADJ(param, INT64);
                 ++argidx;
                 break;
@@ -197,7 +197,7 @@ rbffi_SetupCallParams(int argc, VALUE* argv, int paramCount, Type** paramTypes,
                 break;
 
             case NATIVE_LONG:
-                *(ffi_sarg *) param = NUM2LONG(argv[argidx]);
+                *(ffi_sarg *) param = NUM2ULONG(argv[argidx]);
                 ADJ(param, LONG);
                 ++argidx;
                 break;

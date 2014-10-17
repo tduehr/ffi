@@ -53,7 +53,7 @@
 static inline char* memory_address(VALUE self);
 VALUE rbffi_AbstractMemoryClass = Qnil;
 static VALUE NullPointerErrorClass = Qnil;
-static ID id_to_ptr = 0, id_plus = 0, id_call = 0;
+static ID id_to_ptr = 0, id_plus = 0, id_call = 0, id_find_type = 0;
 
 static VALUE
 memory_allocate(VALUE klass)
@@ -607,6 +607,46 @@ memory_copy_from(VALUE self, VALUE rbsrc, VALUE rblen)
     return self;
 }
 
+static VALUE
+memory_read_type(VALUE self, VALUE type)
+{
+    Type *readType;
+    AbstractMemory* memory;
+
+    VALUE t = rb_funcall(rbffi_FFIModule, id_find_type, type);
+    Data_Get_Struct(self, Type, readType);
+    Data_Get_Struct(self, AbstractMemory, memory);
+
+    return rbffi_NativeValue_ToRuby(readType, readType->rbType, memory)
+}
+
+static VALUE
+memory_write_type(VALUE self, VALUE type, VALUE value)
+{
+    Type *writeType = NULL;
+    AbstractMemory* memory;
+
+    VALUE t = rb_funcall(rbffi_FFIModule, id_find_type, type);
+    Data_Get_Struct(t, Type, writeType);
+    Data_Get_Struct(self, AbstractMemory, memory);
+
+    if (unlikely(writeType->nativeType == NATIVE_MAPPED)) {
+        rbWriteType = ((MappedType *) writeType)->rbType;
+        writeType = ((MappedType *) writeType)->type;
+    }
+
+    op = get_memory_op(writeType);
+
+    if (op == NULL) {
+        // FIXME needs support for structs
+        rb_raise(rb_eArgError, "Type not supported");
+        return NULL;
+    }
+
+    op->put(self, 0, value);
+    return;
+}
+
 AbstractMemory*
 rbffi_AbstractMemory_Cast(VALUE obj, VALUE klass)
 {
@@ -1017,6 +1057,8 @@ rbffi_AbstractMemory_Init(VALUE moduleFFI)
     rb_define_method(classMemory, "read_bytes", memory_read_bytes, 1);
     rb_define_method(classMemory, "write_bytes", memory_write_bytes, -1);
     rb_define_method(classMemory, "get_array_of_string", memory_get_array_of_string, -1);
+    rb_define_method(classMemory, "read_type", memory_read_type, 1);
+    rb_define_method(classMemory, "write_type", memory_write_type, 2);
 
     rb_define_method(classMemory, "clear", memory_clear, 0);
     rb_define_method(classMemory, "total", memory_size, 0);
@@ -1028,5 +1070,6 @@ rbffi_AbstractMemory_Init(VALUE moduleFFI)
     id_to_ptr = rb_intern("to_ptr");
     id_call = rb_intern("call");
     id_plus = rb_intern("+");
+    id_find_type = rb_intern("find_type");
 }
 
